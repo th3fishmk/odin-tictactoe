@@ -46,6 +46,7 @@ function checkForWinner() {
     if (columns.includes(3) || rows.includes(3) || diagonals.includes(3)) {
         winner = 1;
         console.log(`1 wins`);
+        spawnBar(3);
     } else if (
         columns.includes(-3) ||
         rows.includes(-3) ||
@@ -53,12 +54,78 @@ function checkForWinner() {
     ) {
         winner = -1;
         console.log(`-1 wins`);
+        spawnBar(-3);
     } else {
         console.log(`No winners this far`);
     }
 }
 
+function spawnBar(winner: number) {
+    const horiBar = document.getElementById('horiBar');
+    const vertBar = document.getElementById('vertBar');
+    const diagBar = document.getElementById('diagBar');
+
+    const winnerColumn = columns.indexOf(winner);
+    const winnerRow = rows.indexOf(winner);
+
+    // Spawning on columns
+    console.log(`spawning on col: ${winnerColumn}`);
+    if (winnerColumn >= 0) {
+        const spawnLoc = document.getElementById(String(winnerColumn + 1));
+        console.log(spawnLoc);
+
+        const bar = vertBar?.cloneNode(true) as HTMLElement;
+        bar.classList.toggle('hidden');
+        spawnLoc?.appendChild(bar);
+    }
+
+    // Spawning on rows
+    console.log(`spawning on row: ${winnerRow}`);
+    if (winnerRow >= 0) {
+        let location = 0;
+        if (winnerRow + 1 === 1) {
+            location = 1;
+        } else if (winnerRow + 1 == 2) {
+            location = 4;
+        } else {
+            location = 7;
+        }
+        const spawnLoc = document.getElementById(String(location));
+        console.log(spawnLoc);
+
+        const bar = horiBar?.cloneNode(true) as HTMLElement;
+        bar.classList.toggle('hidden');
+        spawnLoc?.appendChild(bar);
+    }
+
+    // Spawning diagonals
+    if (diagonals[0] === winner) {
+        const spawnLoc = document.getElementById('5');
+        const bar = diagBar?.cloneNode(true) as HTMLElement;
+        bar.classList.toggle('hidden');
+        bar.classList.toggle('left');
+        spawnLoc?.appendChild(bar);
+    }
+    if (diagonals[1] === winner) {
+        const spawnLoc = document.getElementById('5');
+        const bar = diagBar?.cloneNode(true) as HTMLElement;
+        bar.classList.toggle('hidden');
+        bar.classList.toggle('right');
+        spawnLoc?.appendChild(bar);
+    }
+    dialog.showModal();
+    const modalText = document.getElementById('player-winner') as HTMLElement;
+    modalText.textContent = `Player ${winner > 0 ? 1 : 2} wins!`;
+}
+
+function changePlayerTurn() {
+    playerTurn?.classList.toggle('tied-1');
+    currentPlayer = currentPlayer * -1;
+}
+
 const ties = document.querySelectorAll('.row');
+const playerTurn = document.getElementById('turn');
+const dialog = document.getElementById('winner') as HTMLDialogElement;
 
 ties.forEach((tie) => {
     tie.addEventListener('click', () => {
@@ -78,7 +145,7 @@ ties.forEach((tie) => {
                 updateArray(Number(tie.getAttribute('id')), currentPlayer);
                 checkForWinner();
                 if (winner === 0) {
-                    currentPlayer = currentPlayer * -1;
+                    changePlayerTurn();
                 }
             } else {
                 console.log(`\nIt's player: ${currentPlayer} turn!`);
